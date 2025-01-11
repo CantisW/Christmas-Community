@@ -1,7 +1,7 @@
-const getProductData = require('get-product-name')
-const u64 = require('u64')
+import getProductData from 'get-product-name'
+import u64 from 'u64'
 
-class Wishlist {
+export class Wishlist {
   static async new (username) {
     const instance = new this({ username })
     await instance.fetch()
@@ -50,7 +50,7 @@ class Wishlist {
         .filter(item => item.addedBy === username)
     }
 
-    return addedBySelfAtTop(this.items)
+    return await addedBySelfAtTop(this.items)
   }
 
   async add ({ itemUrlOrName, suggest, note, addedBy }) {
@@ -138,6 +138,15 @@ class Wishlist {
     await this.save()
   }
 
+  async moveBottom (id) {
+    const index = this.items.findIndex(item => item.id === id)
+    if (index === -1) throw new Error(_CC.lang('WISHLIST_ITEM_MISSING'))
+
+    const item = this.items.splice(index, 1)[0]
+    this.items.push(item)
+    await this.save()
+  }
+
   async setItemData (id, data) {
     const item = await this.get(id)
 
@@ -174,11 +183,6 @@ class Wishlist {
 function parseURL (string) {
   try {
     const url = new URL(string)
-    if (_CC.config.wishlist.smile) {
-      if (url.hostname === 'www.amazon.com') url.hostname = 'smile.amazon.com'
-    }
     if (url) return url
   } catch {}
 }
-
-module.exports = { Wishlist }

@@ -1,7 +1,7 @@
-const passport = require('passport')
-const express = require('express')
+import passport from 'passport'
+import express from 'express'
 
-module.exports = () => {
+export default function ({ config }) {
   const router = express.Router()
 
   router.get('/',
@@ -9,7 +9,7 @@ module.exports = () => {
       if (req.isAuthenticated()) {
         res.redirect('/')
       } else {
-        res.render('login')
+        res.render('login', { oidcEnabled: config.oidcEnabled })
       }
     }
   )
